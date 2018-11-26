@@ -1,0 +1,24 @@
+- name: Builds Jenkins slave docker image
+  hosts: localhost
+  vars:
+    - imageName: "tektutor/jenkins-slave"
+  tasks:
+    - name: Install Python package installer
+      apt: name=python-pip state=latest update_cache=yes
+
+    - name: Install docker-py python package
+      shell: pip install docker-py 
+
+    - name: Remove the existing containers
+      shell: docker rm -f $(docker ps -aq) 
+      ignore_errors: yes
+
+    - name: Remove the existing docker image 
+      shell: "docker rmi {{imageName}}"  
+
+    - name: Build Jenkins slave docker image
+      docker_image:
+          name: "{{imageName}}"
+          path: "."
+          state: build
+          dockerfile: Dockerfile
